@@ -1,4 +1,4 @@
-// Teensy 4.0 Robot Code with WiFi Integration (V2.9.4)
+// Teensy 4.0 Robot Code 
 #include <math.h>
 #include <HardwareSerial.h>
 #include <SoftwareSerial.h>
