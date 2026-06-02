@@ -1,554 +1,420 @@
-# Odrive Calibration 
+# ODrive Calibration
 
-___
+Using the Python ODrive library ([odrivetool](https://docs.odriverobotics.com/v/latest/interfaces/odrivetool.html))
 
-Using the python odrive library(<a href="https://docs.odriverobotics.com/v/latest/interfaces/odrivetool.html">odrivetool</a>)
+> **Recommended:** Calibrate each driver individually on a PSU.
 
-It is recommended to individually calibrate each driver on a PSU
+---
 
+## Useful Commands
 
+### Factory Reset
 
-### Useful Commands:
+```python
+odrv0.erase_configuration()
+```
 
-**// Factory reset Odrive**
+### Check Bus Voltage
 
-odrv0.erase\_configuration()
+```python
+odrv0.vbus_voltage
+```
 
+### Error Handling
 
+```python
+dump_errors(odrv0)
+odrv0.clear_errors()
+```
 
-**//test voltage**
+### Check Axis State
 
-odrv0.vbus\_voltage
+> `0` = No state, `1` = Idle, `8` = Closed loop
 
+```python
+odrv0.axis0.current_state
+```
 
+### Check Input Mode
 
-**//check errors**
+> `5` = Trapezoidal trajectory
 
-dump\_errors(odrv0)
+```python
+odrv0.axis0.controller.config.input_mode
+```
 
-odrv0.clear\_errors()
+### Backup & Restore Configuration
 
+```python
+# Save config to file
+odrivetool backup-config my_config.json
 
+# Restore config from file
+odrivetool restore-config my_config.json
+```
 
-**//check axis state: no state 0, IDLE state 1, closed loop 8,** 
+---
 
-odrv0.axis0.current\_state 
+## Motor Calibration
 
+Both a **configuration** and **anti-cogging** calibration should be saved to the ODrive for a reliable and accurate setup.
 
+---
 
-**//check input mode: trap traj 5**
+### Turnigy 100 kV — Configuration
 
-odrv0.axis0.controller.config.input\_mode
+#### 1. Current & Velocity Limits
 
+```python
+odrv0.axis0.motor.config.current_lim = 40
+odrv0.axis0.controller.config.vel_limit = 5
 
+odrv0.axis1.motor.config.current_lim = 40
+odrv0.axis1.controller.config.vel_limit = 5
+```
 
-**//To save the configuration to a file on the PC**
+#### 2. Brake Resistor
 
-odrivetool backup-config my\_config.json
+> Only required for firmware **0.5.5** and **0.5.6** — remove these lines for other versions.
 
+```python
+odrv0.config.enable_brake_resistor = True
+odrv0.config.brake_resistance = 2
+odrv0.config.dc_bus_overvoltage_trip_level = 26
+```
 
+#### 3. Motor Configuration
 
-**//To restore the configuration form such a file**
+```python
+odrv0.axis0.motor.config.motor_type = 0
+odrv0.axis0.motor.config.pole_pairs = 20
+odrv0.axis0.motor.config.torque_constant = 8.27 / 100
+odrv0.axis0.motor.config.calibration_current = 20
 
-odrivetool restore-config my\_config.json
+odrv0.axis1.motor.config.motor_type = 0
+odrv0.axis1.motor.config.pole_pairs = 20
+odrv0.axis1.motor.config.torque_constant = 8.27 / 100
+odrv0.axis1.motor.config.calibration_current = 20
+```
 
+#### 4. Encoder Configuration (AS5047D — SPI Mode)
 
+> Set the correct CS GPIO pin for your wiring.
 
-### General Calibration Commands:
+```python
+odrv0.axis0.encoder.config.abs_spi_cs_gpio_pin = 8
+odrv0.axis0.encoder.config.mode = ENCODER_MODE_SPI_ABS_AMS
+odrv0.axis0.encoder.config.cpr = 2**14
 
-Dependent on the type of motor and use the following set of commands outline the list of instructions to calibrate the motor.
+odrv0.axis1.encoder.config.abs_spi_cs_gpio_pin = 7
+odrv0.axis1.encoder.config.mode = ENCODER_MODE_SPI_ABS_AMS
+odrv0.axis1.encoder.config.cpr = 2**14
+```
 
-To achieve a reliable and accurate setup both a configuration and anti-cogging set of commands should be saved onto the odrive.
+#### 5. Save & Reboot
 
-#### Turnigy Configuration Commands:
-
-odrv0.axis0.motor.config.current\_lim = 40
-
-odrv0.axis0.controller.config.vel\_limit = 5
-
-
-
-odrv0.axis1.motor.config.current\_lim = 40
-
-odrv0.axis1.controller.config.vel\_limit = 5
-
-
-
-**\#only for firmware 0.5.5 and 0.5.6 else remove**
-
-odrv0.config.enable\_brake\_resistor = True  
-
-
-
-odrv0.config.brake\_resistance = 2
-
-odrv0.config.dc\_bus\_overvoltage\_trip\_level = 26
-
-
-
-
-
-**\#Motor Configuration for Turnigy 100 kV**
-
-odrv0.axis0.motor.config.motor\_type = 0
-
-odrv0.axis0.motor.config.pole\_pairs = 20
-
-odrv0.axis0.motor.config.torque\_constant = 8.27/100
-
-odrv0.axis0.motor.config.calibration\_current = 20
-
-
-
-odrv0.axis1.motor.config.motor\_type = 0
-
-odrv0.axis1.motor.config.pole\_pairs = 20
-
-odrv0.axis1.motor.config.torque\_constant = 8.27/100
-
-odrv0.axis1.motor.config.calibration\_current = 20
-
-
-
-
-
-**\#Encoder configuration for AS5047D - SPI Mode (enter the correct pin)**
-
-odrv0.axis0.encoder.config.abs\_spi\_cs\_gpio\_pin = 8
-
-odrv0.axis0.encoder.config.mode = ENCODER\_MODE\_SPI\_ABS\_AMS
-
-odrv0.axis0.encoder.config.cpr = 2\*\*14
-
-
-
-odrv0.axis1.encoder.config.abs\_spi\_cs\_gpio\_pin = 7
-
-odrv0.axis1.encoder.config.mode = ENCODER\_MODE\_SPI\_ABS\_AMS
-
-odrv0.axis1.encoder.config.cpr = 2\*\*14
-
-
-
-**//save \& reboot**
-
-odrv0.save\_configuration()
-
+```python
+odrv0.save_configuration()
 odrv0.reboot()
+```
 
-**//Note: Power cycling may be required (as there can be encoder positional errors)**
+> **Note:** A full power cycle may be required if encoder positional errors appear.
 
+#### 6. Encoder Offset Calibration (SPI Mode)
 
+> Nothing should physically happen during this step.
 
-**//Encoder calibration SPI mode (nothing should happend)**
+```python
+odrv0.axis0.requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION
+odrv0.axis1.requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION
+```
 
-odrv0.axis0.requested\_state = AXIS\_STATE\_ENCODER\_OFFSET\_CALIBRATION
+#### 7. Full Calibration Sequence
 
-odrv0.axis1.requested\_state = AXIS\_STATE\_ENCODER\_OFFSET\_CALIBRATION
+> The motor should beep and rotate in both directions.
 
+```python
+odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+odrv0.axis1.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+```
 
+#### 8. Flag as Pre-Calibrated
 
+> This allows the ODrive to skip full calibration on the next boot and go straight to closed loop.
 
+```python
+odrv0.axis0.encoder.config.pre_calibrated = True
+odrv0.axis1.encoder.config.pre_calibrated = True
 
-**//full calibration (beep sound + motor rotate in both direction)**
+odrv0.axis0.motor.config.pre_calibrated = True
+odrv0.axis1.motor.config.pre_calibrated = True
+```
 
-odrv0.axis0.requested\_state = AXIS\_STATE\_FULL\_CALIBRATION\_SEQUENCE
+#### 9. PID Control Gains
 
-odrv0.axis1.requested\_state = AXIS\_STATE\_FULL\_CALIBRATION\_SEQUENCE
+```python
+odrv0.axis0.controller.config.pos_gain = 100
+odrv0.axis0.controller.config.vel_gain = 0.3
+odrv0.axis0.controller.config.vel_integrator_gain = 0.4
 
+odrv0.axis1.controller.config.pos_gain = 100
+odrv0.axis1.controller.config.vel_gain = 0.3
+odrv0.axis1.controller.config.vel_integrator_gain = 0.4
+```
 
+#### 10. Trajectory Control Limits
 
+```python
+odrv0.axis0.trap_traj.config.vel_limit = 5.0
+odrv0.axis0.trap_traj.config.accel_limit = 5.0
+odrv0.axis0.trap_traj.config.decel_limit = 5.0
 
+odrv0.axis1.trap_traj.config.vel_limit = 5.0
+odrv0.axis1.trap_traj.config.accel_limit = 5.0
+odrv0.axis1.trap_traj.config.decel_limit = 5.0
+```
 
-**//flag calibration as true**
+#### 11. Save & Reboot
 
-odrv0.axis0.encoder.config.pre\_calibrated = True
-
-odrv0.axis1.encoder.config.pre\_calibrated = True
-
-
-
-odrv0.axis0.motor.config.pre\_calibrated = True
-
-odrv0.axis1.motor.config.pre\_calibrated = True
-
-
-
-
-
-**//PID Control**
-
-odrv0.axis0.controller.config.pos\_gain = 100
-
-odrv0.axis0.controller.config.vel\_gain = 0.3
-
-odrv0.axis0.controller.config.vel\_integrator\_gain = 0.4
-
-
-
-odrv0.axis1.controller.config.pos\_gain = 100
-
-odrv0.axis1.controller.config.vel\_gain = 0.3
-
-odrv0.axis1.controller.config.vel\_integrator\_gain = 0.4
-
-
-
-
-
-**\#trajectory control**
-
-odrv0.axis0.trap\_traj.config.vel\_limit = 5.0
-
-odrv0.axis0.trap\_traj.config.accel\_limit = 5.0
-
-odrv0.axis0.trap\_traj.config.decel\_limit = 5.0
-
-
-
-odrv0.axis1.trap\_traj.config.vel\_limit = 5.0
-
-odrv0.axis1.trap\_traj.config.accel\_limit = 5.0
-
-odrv0.axis1.trap\_traj.config.decel\_limit = 5.0
-
-
-
-
-
-**//Save and reboot**
-
-odrv0.save\_configuration()
-
+```python
+odrv0.save_configuration()
 odrv0.reboot()
+```
 
-**//Now the motors are capable of being used without further calibration**
+> Motors are now ready to use without further calibration.
 
-#### Surpass Configuration Commands:
+---
 
-odrv0.axis0.motor.config.current\_lim = 40
+### Surpass C5065 435 kV — Configuration
 
-odrv0.axis0.controller.config.vel\_limit = 5
+#### 1. Current & Velocity Limits
 
+```python
+odrv0.axis0.motor.config.current_lim = 40
+odrv0.axis0.controller.config.vel_limit = 5
 
+odrv0.axis1.motor.config.current_lim = 40
+odrv0.axis1.controller.config.vel_limit = 5
+```
 
-odrv0.axis1.motor.config.current\_lim = 40
+#### 2. Brake Resistor
 
-odrv0.axis1.controller.config.vel\_limit = 5
+> Only required for firmware **0.5.5** and **0.5.6** — remove these lines for other versions.
 
+```python
+odrv0.config.enable_brake_resistor = True
+odrv0.config.brake_resistance = 2
+odrv0.config.dc_bus_overvoltage_trip_level = 25
+```
 
+#### 3. Motor Configuration
 
-**\#only for firmware 0.5.5 and 0.5.6 else remove**
+```python
+odrv0.axis0.motor.config.motor_type = 0
+odrv0.axis0.motor.config.pole_pairs = 7
+odrv0.axis0.motor.config.torque_constant = 8.27 / 435
+odrv0.axis0.motor.config.calibration_current = 20
 
-odrv0.config.enable\_brake\_resistor = True 
+odrv0.axis1.motor.config.motor_type = 0
+odrv0.axis1.motor.config.pole_pairs = 7
+odrv0.axis1.motor.config.torque_constant = 8.27 / 435
+odrv0.axis1.motor.config.calibration_current = 20
+```
 
+#### 4. Encoder Configuration (AS5047D — SPI Mode)
 
+> Set the correct CS GPIO pin for your wiring.
 
-odrv0.config.brake\_resistance = 2
+```python
+odrv0.axis0.encoder.config.abs_spi_cs_gpio_pin = 8
+odrv0.axis0.encoder.config.mode = ENCODER_MODE_SPI_ABS_AMS
+odrv0.axis0.encoder.config.cpr = 2**14
 
-odrv0.config.dc\_bus\_overvoltage\_trip\_level = 25
+odrv0.axis1.encoder.config.abs_spi_cs_gpio_pin = 7
+odrv0.axis1.encoder.config.mode = ENCODER_MODE_SPI_ABS_AMS
+odrv0.axis1.encoder.config.cpr = 2**14
+```
 
+#### 5. Save & Reboot
 
-
-
-
-**\#Motor Configuration for C5065 435 kV**
-
-odrv0.axis0.motor.config.motor\_type = 0
-
-odrv0.axis0.motor.config.pole\_pairs = 7
-
-odrv0.axis0.motor.config.torque\_constant = 8.27/435
-
-odrv0.axis0.motor.config.calibration\_current = 20
-
-
-
-odrv0.axis1.motor.config.motor\_type = 0
-
-odrv0.axis1.motor.config.pole\_pairs = 7
-
-odrv0.axis1.motor.config.torque\_constant = 8.27/435
-
-odrv0.axis1.motor.config.calibration\_current = 20
-
-
-
-
-
-**\#Encoder configuration for AS5047D - SPI Mode (enter the correct pin)**
-
-odrv0.axis0.encoder.config.abs\_spi\_cs\_gpio\_pin = 8
-
-odrv0.axis0.encoder.config.mode = ENCODER\_MODE\_SPI\_ABS\_AMS
-
-odrv0.axis0.encoder.config.cpr = 2\*\*14
-
-
-
-odrv0.axis1.encoder.config.abs\_spi\_cs\_gpio\_pin = 7
-
-odrv0.axis1.encoder.config.mode = ENCODER\_MODE\_SPI\_ABS\_AMS
-
-odrv0.axis1.encoder.config.cpr = 2\*\*14
-
-
-
-**//save \& reboot**
-
-odrv0.save\_configuration()
-
+```python
+odrv0.save_configuration()
 odrv0.reboot()
+```
 
-**//Note: Power cycling may be required (as there can be encoder positional errors)**
+> **Note:** A full power cycle may be required if encoder positional errors appear.
 
+#### 6. Encoder Offset Calibration (SPI Mode)
 
+> Nothing should physically happen during this step.
 
-**//Encoder calibration SPI mode (nothing should happend)**
+```python
+odrv0.axis0.requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION
+odrv0.axis1.requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION
+```
 
-odrv0.axis0.requested\_state = AXIS\_STATE\_ENCODER\_OFFSET\_CALIBRATION
+#### 7. Full Calibration Sequence
 
-odrv0.axis1.requested\_state = AXIS\_STATE\_ENCODER\_OFFSET\_CALIBRATION
+> The motor should beep and rotate in both directions.
 
+```python
+odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+odrv0.axis1.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+```
 
+#### 8. Flag as Pre-Calibrated
 
+```python
+odrv0.axis0.encoder.config.pre_calibrated = True
+odrv0.axis1.encoder.config.pre_calibrated = True
 
+odrv0.axis0.motor.config.pre_calibrated = True
+odrv0.axis1.motor.config.pre_calibrated = True
+```
 
-**//full calibration (beep sound + motor rotate in both direction)**
+#### 9. PID Control Gains
 
-odrv0.axis0.requested\_state = AXIS\_STATE\_FULL\_CALIBRATION\_SEQUENCE
+```python
+odrv0.axis0.controller.config.pos_gain = 40
+odrv0.axis0.controller.config.vel_gain = 0.125
+odrv0.axis0.controller.config.vel_integrator_gain = 0.2
 
-odrv0.axis1.requested\_state = AXIS\_STATE\_FULL\_CALIBRATION\_SEQUENCE
+odrv0.axis1.controller.config.pos_gain = 40
+odrv0.axis1.controller.config.vel_gain = 0.125
+odrv0.axis1.controller.config.vel_integrator_gain = 0.2
+```
 
+#### 10. Trajectory Control Limits
 
+```python
+odrv0.axis0.trap_traj.config.vel_limit = 5.0
+odrv0.axis0.trap_traj.config.accel_limit = 5.0
+odrv0.axis0.trap_traj.config.decel_limit = 5.0
 
+odrv0.axis1.trap_traj.config.vel_limit = 5.0
+odrv0.axis1.trap_traj.config.accel_limit = 5.0
+odrv0.axis1.trap_traj.config.decel_limit = 5.0
+```
 
+#### 11. Save & Reboot
 
-**//flag calibration as true: so on the next boot you can skip the full calibration and go straight to closed loop**
-
-odrv0.axis0.encoder.config.pre\_calibrated = True
-
-odrv0.axis1.encoder.config.pre\_calibrated = True
-
-
-
-odrv0.axis0.motor.config.pre\_calibrated = True
-
-odrv0.axis1.motor.config.pre\_calibrated = True
-
-
-
-
-
-**//PID Control**
-
-odrv0.axis0.controller.config.pos\_gain = 40
-
-odrv0.axis0.controller.config.vel\_gain = 0.125
-
-odrv0.axis0.controller.config.vel\_integrator\_gain = 0.2
-
-
-
-odrv0.axis1.controller.config.pos\_gain = 40
-
-odrv0.axis1.controller.config.vel\_gain = 0.125
-
-odrv0.axis1.controller.config.vel\_integrator\_gain = 0.2
-
-
-
-
-
-**\#trajectory control**
-
-odrv0.axis0.trap\_traj.config.vel\_limit = 5.0
-
-odrv0.axis0.trap\_traj.config.accel\_limit = 5.0
-
-odrv0.axis0.trap\_traj.config.decel\_limit = 5.0
-
-
-
-odrv0.axis1.trap\_traj.config.vel\_limit = 5.0
-
-odrv0.axis1.trap\_traj.config.accel\_limit = 5.0
-
-odrv0.axis1.trap\_traj.config.decel\_limit = 5.0
-
-
-
-**//Save and reboot**
-
-odrv0.save\_configuration()
-
+```python
+odrv0.save_configuration()
 odrv0.reboot()
+```
 
-**//Now the motors are capable of being used without further calibration**
+> Motors are now ready to use without further calibration.
 
-### Anti-cogging Commands:
+---
 
-**\#starting axis0 anti-cogging**
+## Anti-Cogging Calibration
 
-odrv0.axis0.controller.config.control\_mode = CONTROL\_MODE\_POSITION\_CONTROL
+> Anti-cogging takes approximately **20 minutes** by default (3600 steps). Run for both axes.
 
-odrv0.axis0.requested\_state = AXIS\_STATE\_CLOSED\_LOOP\_CONTROL
+#### 1. Start Anti-Cogging Calibration
 
-odrv0.axis0.controller.config.anticogging.pre\_calibrated = False
+```python
+# Axis 0
+odrv0.axis0.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
+odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+odrv0.axis0.controller.config.anticogging.pre_calibrated = False
+odrv0.axis0.controller.start_anticogging_calibration()
 
-odrv0.axis0.controller.start\_anticogging\_calibration()
+# Axis 1
+odrv0.axis1.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
+odrv0.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+odrv0.axis1.controller.config.anticogging.pre_calibrated = False
+odrv0.axis1.controller.start_anticogging_calibration()
+```
 
+#### 2. Monitor Progress
 
+> Poll these flags to track calibration status.
+>
+> **`calib_anticogging`**: `True` = calibration running, `False` = finished (or not started)  
+> **`anticogging_valid`**: `False` = no valid map yet, `True` = map complete and valid
 
-**\\#starting axis0 anti-cogging**
+```python
+odrv0.axis0.controller.config.anticogging.calib_anticogging
+odrv0.axis0.controller.anticogging_valid
 
-odrv0.axis1.controller.config.control\_mode = CONTROL\_MODE\_POSITION\_CONTROL
+odrv0.axis1.controller.config.anticogging.calib_anticogging
+odrv0.axis1.controller.anticogging_valid
+```
 
-odrv0.axis1.requested\_state = AXIS\_STATE\_CLOSED\_LOOP\_CONTROL
+> Check the current step index — if it's increasing, calibration is actively running.
+> If it returns `0`, calibration may have finished or an error occurred — run `dump_errors` to check.
 
-odrv0.axis1.controller.config.anticogging.pre\_calibrated = False
-
-odrv0.axis1.controller.start\_anticogging\_calibration()
-
-
-
-**//run until anticogging.calib\_anticogging == false or anticogging\_valid == True**  
-
-**//odrv0.axis0.controller.config.anticogging.calib\_anticogging**
-
-**//	True -> calibration is running**
-
-**//	False -> calibration routine finished (or never started)**
-
-**//odrv0.axis0.controller.anticogging\_valid**
-
-**//	False -> no valid map yet**
-
-**//	True -> map is complete and considered valid**
-
-**//Flags**
-
-odrv0.axis0.controller.config.anticogging.calib\_anticogging
-
-
-
-odrv0.axis0.controller.anticogging\_valid
-
-
-
-odrv0.axis1.controller.config.anticogging.calib\_anticogging
-
-
-
-odrv0.axis1.controller.anticogging\_valid
-
-
-
-
-
-**// note run this command if the number increase: anti-cogging calibration routine is actively stepping through positions**
-
-**// if the command return 0 usually anti-cogging finish run test or error occurred then dump errors and restart**
-
-**// It can be slow (take \~20 mins) as default steps is 3600 (odrv0.axis0.config.anticogging.calib\_anticogging\_num\_steps)**
-
-**//Check how many steps through anti-cogging the odrive is**
-
+```python
 odrv0.axis0.controller.config.anticogging.index
-
-
-
 odrv0.axis1.controller.config.anticogging.index
+```
 
+#### 3. Finalise Anti-Cogging
 
+> Run this once `anticogging_valid == True` or `calib_anticogging == False`.
 
-**//after anticogging\_valid == True or anticogging.calib\_anticogging == false** 
+```python
+# Axis 0
+odrv0.axis0.controller.config.anticogging.pre_calibrated = True
+odrv0.axis0.controller.config.anticogging.anticogging_enabled = True
+odrv0.axis0.requested_state = AXIS_STATE_IDLE
 
-**//flag calibration as true**
+# Axis 1
+odrv0.axis1.controller.config.anticogging.anticogging_enabled = True
+odrv0.axis1.controller.config.anticogging.pre_calibrated = True
+odrv0.axis1.requested_state = AXIS_STATE_IDLE
+```
 
-odrv0.axis0.controller.config.anticogging.pre\_calibrated = True
+> `save_configuration()` may return `False` if the axis is not in IDLE — ensure both axes are idle before saving.
 
-odrv0.axis0.controller.config.anticogging.anticogging\_enabled = True
-
-odrv0.axis0.requested\_state = AXIS\_STATE\_IDLE
-
-
-
-odrv0.axis1.controller.config.anticogging.anticogging\_enabled = True
-
-odrv0.axis1.controller.config.anticogging.pre\_calibrated = True
-
-odrv0.axis1.requested\_state = AXIS\_STATE\_IDLE
-
-
-
-**//This should not return false, if it does it is likely not in IDLE**
-
-odrv0.save\_configuration() 
-
-
-
-**//save**
-
-odrv0.save\_configuration()
-
+```python
+odrv0.save_configuration()
 odrv0.reboot()
+```
 
+---
 
+## Running the Motors
 
-### Running Commands:
+#### 1. Verify Calibration (Optional)
 
-**//optional check**
+```python
+odrv0.axis0.motor.is_calibrated    # Expected: True
+odrv0.axis0.encoder.is_ready       # Expected: True
 
-odrv0.axis0.motor.is\_calibrated    \#should print True
+odrv0.axis1.motor.is_calibrated    # Expected: True
+odrv0.axis1.encoder.is_ready       # Expected: True
+```
 
+#### 2. Check Absolute Position
 
+> Used to find the absolute position and place legs correctly on start-up.
 
-odrv0.axis0.encoder.is\_ready      \#should print True
+```python
+odrv0.axis0.encoder.pos_estimate
+odrv0.axis1.encoder.pos_estimate
+```
 
+#### 3. Enter Closed Loop & Trapezoidal Trajectory Mode
 
+```python
+odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+odrv0.axis1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 
-odrv0.axis1.motor.is\_calibrated    \#should print True
+odrv0.axis0.controller.config.input_mode = INPUT_MODE_TRAP_TRAJ
+odrv0.axis1.controller.config.input_mode = INPUT_MODE_TRAP_TRAJ
+```
 
+#### 4. Set Target Position
 
+> These are **absolute positions**, not relative movements.
 
-odrv0.axis1.encoder.is\_ready      \#should print True
+```python
+odrv0.axis0.controller.input_pos = 1
+odrv0.axis1.controller.input_pos = 1
 
-
-
-**//Used to find absolute position to place legs on start up**
-
-odrv0.axis0.encoder.pos\_estimate 
-
-odrv0.axis1.encoder.pos\_estimate 
-
-
-
-**//Enter close loop and trap traj control**
-
-odrv0.axis0.requested\_state = AXIS\_STATE\_CLOSED\_LOOP\_CONTROL
-
-odrv0.axis1.requested\_state = AXIS\_STATE\_CLOSED\_LOOP\_CONTROL
-
-odrv0.axis0.controller.config.input\_mode = INPUT\_MODE\_TRAP\_TRAJ
-
-odrv0.axis1.controller.config.input\_mode = INPUT\_MODE\_TRAP\_TRAJ
-
-
-
-**//this is an absolute position not a movement** 
-
-odrv0.axis0.controller.input\_pos = 1
-
-odrv0.axis1.controller.input\_pos = 1
-
-**//**
-
-odrv0.axis0.controller.input\_pos = 0
-
-odrv0.axis1.controller.input\_pos = 0
-
-
-
-
-
+# Return to zero
+odrv0.axis0.controller.input_pos = 0
+odrv0.axis1.controller.input_pos = 0
+```
