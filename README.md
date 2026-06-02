@@ -8,6 +8,8 @@ This year's project did not start from scratch. The mechanical chassis and the o
 
 The robot now walks reliably on flat ground and slopes up to 12.5 degrees, stays statically stable up to 30 degrees, detects obstacles with LiDAR and stops before hitting them, and is driven from a phone over WiFi. What we did not finish, and what would be sensible next steps, is documented.
 
+Although our robot is called MORPH, it should have been called Murphy, after the Murphy's Law. As the Murphy's law state, "Anything that can go wrong will go wrong", and with our robot that was definitely true during testing days!
+
 ## What's new in this iteration
 
 The mechanical core is iterated rather than rebuilt. The electronics, sensing, control, and software stack are mostly new. A short summary of the changes:
