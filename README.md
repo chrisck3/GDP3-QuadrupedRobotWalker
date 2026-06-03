@@ -55,7 +55,7 @@ Targets the platform was designed to and (within limits) achieved: 19 kg total m
 
 The full assembly, calibration, and bring-up procedure is in repository. 
 
-1. Open `CAD/full\_assembly.f3z` in Solidworks if you want to review or modify the mechanical design.
+1. Open the assembly in Solidworks if you want to review or modify the mechanical design.
 2. Wire the electronics per the wiring diagram. The protoboard is the central distribution point.
 3. Calibrate the six ODrives one at a time using their own tools. The firmware tunes gains and limits on top but assumes the motor configuration is already valid.
 4. Flash the Teensy firmware and the ESP32 firmware located on the repo. Each has its own README with the dependencies and bring-up steps.
