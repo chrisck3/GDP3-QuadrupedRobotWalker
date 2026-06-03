@@ -1,6 +1,6 @@
 # ODrive Calibration
 
-Using the Python ODrive library ([odrivetool](https://docs.odriverobotics.com/v/latest/interfaces/odrivetool.html))
+Using the Python ODrive library ([odrivetool](https://docs.odriverobotics.com/v/0.5.6/getting-started.html))
 
 > **Recommended:** Calibrate each driver individually on a PSU.
 
@@ -24,6 +24,9 @@ odrv0.vbus_voltage
 
 ```python
 dump_errors(odrv0)
+```
+
+```python
 odrv0.clear_errors()
 ```
 
@@ -48,7 +51,9 @@ odrv0.axis0.controller.config.input_mode
 ```python
 # Save config to file
 odrivetool backup-config my_config.json
+```
 
+```python
 # Restore config from file
 odrivetool restore-config my_config.json
 ```
@@ -75,10 +80,13 @@ odrv0.axis1.controller.config.vel_limit = 5
 
 #### 2. Brake Resistor
 
-> Only required for firmware **0.5.5** and **0.5.6** — remove these lines for other versions.
+> Only required for firmware **0.5.5** and **0.5.6** — remove this line for other versions.
 
 ```python
 odrv0.config.enable_brake_resistor = True
+```
+
+```python
 odrv0.config.brake_resistance = 2
 odrv0.config.dc_bus_overvoltage_trip_level = 26
 ```
@@ -150,7 +158,7 @@ odrv0.axis0.motor.config.pre_calibrated = True
 odrv0.axis1.motor.config.pre_calibrated = True
 ```
 
-#### 9. PID Control Gains
+#### 9. PNI Control Gains
 
 ```python
 odrv0.axis0.controller.config.pos_gain = 100
@@ -199,10 +207,13 @@ odrv0.axis1.controller.config.vel_limit = 5
 
 #### 2. Brake Resistor
 
-> Only required for firmware **0.5.5** and **0.5.6** — remove these lines for other versions.
+> Only required for firmware **0.5.5** and **0.5.6** — remove this line for other versions.
 
 ```python
 odrv0.config.enable_brake_resistor = True
+```
+
+```python
 odrv0.config.brake_resistance = 2
 odrv0.config.dc_bus_overvoltage_trip_level = 25
 ```
@@ -272,7 +283,7 @@ odrv0.axis0.motor.config.pre_calibrated = True
 odrv0.axis1.motor.config.pre_calibrated = True
 ```
 
-#### 9. PID Control Gains
+#### 9. PNI Control Gains
 
 ```python
 odrv0.axis0.controller.config.pos_gain = 40
@@ -337,7 +348,9 @@ odrv0.axis1.controller.start_anticogging_calibration()
 ```python
 odrv0.axis0.controller.config.anticogging.calib_anticogging
 odrv0.axis0.controller.anticogging_valid
+```
 
+```python
 odrv0.axis1.controller.config.anticogging.calib_anticogging
 odrv0.axis1.controller.anticogging_valid
 ```
@@ -347,6 +360,9 @@ odrv0.axis1.controller.anticogging_valid
 
 ```python
 odrv0.axis0.controller.config.anticogging.index
+```
+
+```python
 odrv0.axis1.controller.config.anticogging.index
 ```
 
@@ -382,7 +398,9 @@ odrv0.reboot()
 ```python
 odrv0.axis0.motor.is_calibrated    # Expected: True
 odrv0.axis0.encoder.is_ready       # Expected: True
+```
 
+```python
 odrv0.axis1.motor.is_calibrated    # Expected: True
 odrv0.axis1.encoder.is_ready       # Expected: True
 ```
@@ -393,6 +411,9 @@ odrv0.axis1.encoder.is_ready       # Expected: True
 
 ```python
 odrv0.axis0.encoder.pos_estimate
+```
+
+```python
 odrv0.axis1.encoder.pos_estimate
 ```
 
@@ -413,7 +434,9 @@ odrv0.axis1.controller.config.input_mode = INPUT_MODE_TRAP_TRAJ
 ```python
 odrv0.axis0.controller.input_pos = 1
 odrv0.axis1.controller.input_pos = 1
+```
 
+```python
 # Return to zero
 odrv0.axis0.controller.input_pos = 0
 odrv0.axis1.controller.input_pos = 0
