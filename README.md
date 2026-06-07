@@ -1,4 +1,6 @@
 # MORPH — Modular Quadrupedal Robot Platform
+<img width="1250" height="1239" alt="image" src="https://github.com/user-attachments/assets/7f26bc8b-2b5b-403c-80b7-d591c943df8c" />
+<img width="1100" height="473" alt="image" src="https://github.com/user-attachments/assets/d8b22bec-7ff3-4985-848d-3017d0bf746b" />
 
 **FEEG6013 Group Design Project, University of Southampton, 2025/26**
 
