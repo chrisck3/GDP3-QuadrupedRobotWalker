@@ -10,6 +10,10 @@ The robot now walks reliably on flat ground and slopes up to 12.5 degrees, stays
 
 Although our robot is called MORPH, it should have been called Murphy, after the Murphy's Law. As the Murphy's law state, "Anything that can go wrong will go wrong", and with our robot that was definitely true during testing days!
 
+<img width="1250" height="1239" alt="image" src="https://github.com/user-attachments/assets/aec21787-9ffd-4677-9ade-ed054a9173c5" />
+<img width="1113" height="478" alt="image" src="https://github.com/user-attachments/assets/74f539fb-b6b8-4756-b095-fba8c82b0447" />
+
+
 ## What's new in this iteration
 
 The mechanical core is iterated rather than rebuilt. The electronics, sensing, control, and software stack are mostly new. A short summary of the changes:
