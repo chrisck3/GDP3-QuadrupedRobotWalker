@@ -10,7 +10,9 @@ The robot now walks reliably on flat ground and slopes up to 12.5 degrees, stays
 
 Although our robot is called MORPH, it should have been called Murphy, after the Murphy's Law. As the Murphy's law state, "Anything that can go wrong will go wrong", and with our robot that was definitely true during testing days!
 
-<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/aec21787-9ffd-4677-9ade-ed054a9173c5" />
+<p align="center">
+  <img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/aec21787-9ffd-4677-9ade-ed054a9173c5" />
+</p>
 <img width="1113" height="478" alt="image" src="https://github.com/user-attachments/assets/74f539fb-b6b8-4756-b095-fba8c82b0447" />
 
 
